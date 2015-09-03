@@ -49,7 +49,7 @@ func TestEncode(t *testing.T) {
 	a := big.NewInt(1)
 	s := hex.EncodeToString(encode(a))
 	if s != "f70b69f4a26bac8c740912424b6dcd71" {
-		t.Errorf("encoded G and got %x instead of %s", s, G)
+		t.Errorf("encoded G and got %x instead of %x", s, G)
 	}
 }
 

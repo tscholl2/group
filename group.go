@@ -3,14 +3,29 @@ package group
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"errors"
 	"math/big"
 )
 
-//Element represents an element of the group
-type Element []byte
+type Element struct {
+	a    *big.Int //up to 32 bytes
+	size uint8    //1 byte, number of bytes a has
+}
+
+func NewElement(b []byte) (e Element, err error) {
+	if len(b)%block.BlockSize() != 0 {
+		err = errors.New("wrong size")
+		return
+	}
+
+	//#TODO fix
+
+	return
+}
 
 var n = new(big.Int)
 var block cipher.Block
+var size = 32 //number of bytes per element
 
 //G is the generator of the group
 var G Element
@@ -42,8 +57,8 @@ func decode(c Element) *big.Int {
 }
 
 func pad(b []byte) []byte {
-	if len(b) <= block.BlockSize() {
-		return append(make([]byte, block.BlockSize()-len(b)), b...)
+	if len(b) <= size {
+		return append(make([]byte, size-len(b)), b...)
 	}
-	return append(make([]byte, block.BlockSize()-len(b)%block.BlockSize()), b...)
+	return append(make([]byte, size-len(b)%block.BlockSize()), b...)
 }
