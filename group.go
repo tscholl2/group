@@ -27,9 +27,10 @@ func Scale(c Element, k *big.Int) Element {
 	return encode(new(big.Int).Mul(a, k))
 }
 
-func encode(a *big.Int) (c Element) {
-	block.Encrypt(c, pad(a.Bytes()))
-	return
+func encode(a *big.Int) Element {
+	b := pad(a.Bytes())
+	block.Encrypt(b, b)
+	return b
 }
 
 func decode(c Element) *big.Int {
