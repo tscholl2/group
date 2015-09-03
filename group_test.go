@@ -1,6 +1,7 @@
 package group
 
 import (
+	"encoding/hex"
 	"math/big"
 	"testing"
 )
@@ -37,6 +38,18 @@ func TestEncodeDecode(t *testing.T) {
 		if a.Cmp(b) != 0 {
 			t.Errorf("Expected %d got %d", a, b)
 		}
+	}
+}
+
+func TestEncode(t *testing.T) {
+	b, _ := hex.DecodeString("f70b69f4a26bac8c740912424b6dcd71")
+	if decode(b).Cmp(big.NewInt(1)) != 0 {
+		t.Errorf("decoded G and got %d instead of 1", decode(b))
+	}
+	a := big.NewInt(1)
+	s := hex.EncodeToString(encode(a))
+	if s != "f70b69f4a26bac8c740912424b6dcd71" {
+		t.Errorf("encoded G and got %x instead of %s", s, G)
 	}
 }
 
