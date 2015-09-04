@@ -3,29 +3,16 @@ package group
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"errors"
+	"encoding/hex"
+	"fmt"
 	"math/big"
 )
 
-type Element struct {
-	a    *big.Int //up to 32 bytes
-	size uint8    //1 byte, number of bytes a has
-}
-
-func NewElement(b []byte) (e Element, err error) {
-	if len(b)%block.BlockSize() != 0 {
-		err = errors.New("wrong size")
-		return
-	}
-
-	//#TODO fix
-
-	return
-}
+//Element is a generic group element
+type Element []byte
 
 var n = new(big.Int)
 var block cipher.Block
-var size = 32 //number of bytes per element
 
 //G is the generator of the group
 var G Element
@@ -36,29 +23,46 @@ func init() {
 	G = encode(big.NewInt(1))
 }
 
-//Scale does repeated operation,
-//Scale(c,k) = kc in additive or
-//c^k in multiplicative notation.
-func Scale(c Element, k *big.Int) Element {
-	a := decode(c)
-	return encode(new(big.Int).Mod(new(big.Int).Mul(a, k), n))
+func decode(h Element) *big.Int {
+	block.Decrypt(h, h)
+	return new(big.Int).SetBytes(h)
 }
 
 func encode(a *big.Int) Element {
-	b := pad(a.Bytes())
+	b := pad(new(big.Int).Mod(a, n).Bytes())
 	block.Encrypt(b, b)
 	return b
 }
 
-func decode(c Element) *big.Int {
-	b := pad(c)
-	block.Decrypt(b, b)
-	return new(big.Int).SetBytes(b)
+func (h Element) Print() string {
+	fmt.Println(h)
+	return hex.EncodeToString(h)
+}
+
+func Load(s string) (Element, error) {
+	if len(s)%2 == 1 {
+		s = "0" + s
+	}
+	b, err := hex.DecodeString(s)
+	if err != nil {
+		return nil, err
+	}
+	return encode(decode(b)), nil
+}
+
+//Scale does repeated operation,
+//Scale(c,k) = kc in additive or
+//c^k in multiplicative notation.
+func (h Element) Scale(k *big.Int) Element {
+	return encode(new(big.Int).Mod(new(big.Int).Mul(decode(h), k), n))
 }
 
 func pad(b []byte) []byte {
-	if len(b) <= size {
-		return append(make([]byte, size-len(b)), b...)
+	if len(b) > 32 {
+		return append(make([]byte, 32-len(b)%32), b...)
 	}
-	return append(make([]byte, size-len(b)%block.BlockSize()), b...)
+	if len(b) < 32 {
+		return append(make([]byte, 32-len(b)), b...)
+	}
+	return b
 }

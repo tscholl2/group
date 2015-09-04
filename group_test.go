@@ -1,7 +1,6 @@
 package group
 
 import (
-	"encoding/hex"
 	"math/big"
 	"testing"
 )
@@ -42,14 +41,19 @@ func TestEncodeDecode(t *testing.T) {
 }
 
 func TestEncode(t *testing.T) {
-	b, _ := hex.DecodeString("f70b69f4a26bac8c740912424b6dcd71")
-	if decode(b).Cmp(big.NewInt(1)) != 0 {
-		t.Errorf("decoded G and got %d instead of 1", decode(b))
+	s := "f70b69f4a26bac8c740912424b6dcd71"
+	h, err := Load(s)
+	if err != nil {
+		t.Errorf("expected nil got %s", err)
 	}
-	a := big.NewInt(1)
-	s := hex.EncodeToString(encode(a))
-	if s != "f70b69f4a26bac8c740912424b6dcd71" {
-		t.Errorf("encoded G and got %x instead of %x", s, G)
+	if h.Print() != s {
+		t.Errorf("expected %s, got %s", s, h.Print())
+	}
+	if decode(h).Cmp(big.NewInt(1)) != 0 {
+		t.Errorf("decoded G and got %d instead of 1", decode(h))
+	}
+	if s != G.Print() {
+		t.Errorf("encoded G and got %s instead of %s", G.Print(), s)
 	}
 }
 
@@ -65,8 +69,9 @@ func TestScale(t *testing.T) {
 		{big.NewInt(7), big.NewInt(3), big.NewInt(21)},
 	}
 	for _, c := range tests {
-		if decode(Scale(encode(c.a), c.k)).Cmp(c.b) != 0 {
-			t.Errorf("expected %d got %d", c.b, decode(Scale(encode(c.a), c.k)))
+		x := decode(encode(c.a).Scale(c.k))
+		if x.Cmp(c.b) != 0 {
+			t.Errorf("expected %d got %d", c.b, x)
 		}
 	}
 }
