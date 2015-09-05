@@ -17,12 +17,13 @@ func TestPad(t *testing.T) {
 	if m%b != 0 {
 		t.Errorf("Expected %d got %d", b, m)
 	}
-	a.Lsh(a, 35)
+	a.SetInt64(35)
 	m = len(pad(a.Bytes()))
 	if m%b != 0 {
 		t.Errorf("Expected %d got %d", b, m)
 	}
-	c := new(big.Int).SetBytes(pad(a.Bytes()))
+	h := pad(a.Bytes())
+	c := new(big.Int).SetBytes(h[:])
 	if c.Cmp(a) != 0 {
 		t.Errorf("padded number not the same as original")
 	}
@@ -36,6 +37,25 @@ func TestEncodeDecode(t *testing.T) {
 		b := decode(E)
 		if a.Cmp(b) != 0 {
 			t.Errorf("Expected %d got %d", a, b)
+		}
+	}
+}
+
+func TestPrintLoad(t *testing.T) {
+	tests := []string{
+		"0000000000000000000000000000000000000000000000000000000000000000",
+		"abcbfbabbabbacbab10000000000000000000000000000000000000000000000",
+		"1124273956147518b10000000000000000000000000000000000000000000000",
+		"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+	}
+	for _, s := range tests {
+		h, err := Load(s)
+		if err != nil {
+			t.Errorf("expected nil got %s", err)
+		}
+		s2 := h.Print()
+		if s2 != s {
+			t.Errorf("Expected %s got %s", s, s2)
 		}
 	}
 }
