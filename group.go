@@ -30,7 +30,7 @@ func decode(h Element) *big.Int {
 }
 
 func encode(a *big.Int) Element {
-	b := pad(new(big.Int).Mod(a, n).Bytes()[:])
+	b := pad(new(big.Int).Mod(a, n).Bytes())
 	block.Encrypt(b[:], b[:])
 	block.Encrypt(b[16:], b[16:])
 	return b
@@ -51,7 +51,7 @@ func Load(s string) (h Element, err error) {
 	if err != nil {
 		return
 	}
-	return encode(decode(pad(b))), nil
+	return pad(b), nil
 }
 
 //Scale does repeated operation,

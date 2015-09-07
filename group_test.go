@@ -61,7 +61,7 @@ func TestPrintLoad(t *testing.T) {
 }
 
 func TestEncode(t *testing.T) {
-	s := "f70b69f4a26bac8c740912424b6dcd71"
+	s := "887ed7ab4de26e81eb0b2284fbb5d178f70b69f4a26bac8c740912424b6dcd71"
 	h, err := Load(s)
 	if err != nil {
 		t.Errorf("expected nil got %s", err)
